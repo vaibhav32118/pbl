@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src='https://www.easycalculation.com/common.js?v5.8'></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <title>DFT</title>
+
+    <style>
+        body {background-color: whitesmoke;}
+    </style>
+</head>
+<body>
+    <div class="container m-5 p-lg-5 text-center mx-auto">
+         <h1 >Discrete Fourier Transform (DFT) Calculator</h1>
+                <form>
+                    <h5>Enter series values(Ex:11,22,3,4...)</h5>
+                    <div id="overlayLoader" class="container"></div >
+                    <div id="dispCalcConts" class="form-group" >
+                        <table class="table-borderless m-auto">
+                            <input class="form-control col-lg-6 m-auto"  type=text id=data onkeyup='checnum(this)' ></td></tr>
+                            <tr><td colspan=4>&nbsp;</td></tr>
+                            <tr><td colspan=4>
+                                <input type=button class="btn btn-primary" value=Calculate onclick='calculate()'> &nbsp; 
+                                <input type=reset class="btn btn-warning" value=Reset onclick=rst()>
+                            </td></tr>
+                        </table>
+                        <br>
+                        <div class='group table '>
+                             <table class="table-bordered thead-dark m-auto w-50 " >
+                                <tbody id='tablecontent'>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>	
+                </form>
+            </div> 
+    </div>
+    <script type="text/javascript">
+        var easyinputs = document.getElementsByTagName("INPUT");
+        for (var ies = 0; ies < easyinputs.length; ies++)
+        {
+            if (easyinputs[ies].type === 'button')
+            { 
+            easyinputs[ies].style.visibility='hidden';
+            if ((easyinputs[ies].offsetTop-10)<0)
+            {
+                document.getElementById("overlayLoader").style.top = (document.getElementById('dispCalcConts').offsetTop+(document.getElementById('dispCalcConts').offsetHeight/4))+"px";
+            }
+            else
+            {
+                document.getElementById("overlayLoader").style.top = (easyinputs[ies].offsetTop-10)+"px";
+            }
+            }
+            else
+            {
+            document.getElementById("overlayLoader").style.top = (document.getElementById('dispCalcConts').offsetTop+(document.getElementById('dispCalcConts').offsetHeight/4))+"px";
+            }
+            if (easyinputs[ies].type === 'reset')
+            { 
+            easyinputs[ies].style.visibility='hidden';
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        var chf_rss=true;
+        function getPathFromUrl(url){return url.split("?")[0];}
+        var curUrl = window.location.pathname; 
+        var basName = curUrl.replace(/^.*[\/\\]/g, '');
+        var curencyIndx = false;
+    </script>               
+    <script type='text/javascript'>
+    var c=0;
+    function checnum(as) {
+        var a=new Array();
+        a = as.value;
+        a= a.replace(/[^\d,.,-]/g, '');
+        a=a.replace(/\,\,/g, ',');
+        as.value=a.replace(/\.\./g, '.');                  
+        a=a.split(',');
+        var i=a.length;
+        for(var i=0;i<a.length;i++){
+            var com=a[i-1];
+            if(Number(com)){
+                c=0;
+            }
+            else{
+                c=1;
+            }
+        }
+    
+    }    
+    function calculate() {
+    
+            var data = $.trim($('#data').val());
+            var arr = new Array();
+            arr = data.split(',');
+            var N = arr.length;
+    
+            if (data == '') {
+                alert('Enter series values');
+                $('#tablecontent').html('');
+                return 0;
+    
+            } 
+            if (c=='1') {
+                alert('Enter valid values');
+                $('#tablecontent').html('');
+                return 0;
+    
+            }else if (N > 1000) {
+                alert('Enter series size upto 16');
+                $('#tablecontent').html('');
+                return 0;
+            } else {
+                var t_real = new Array(N);
+                var t_img = new Array(N);
+    
+                var real = 0;
+                var img = 0;
+                var tmp = 0;
+                var str = '';
+                var tablcont='<tr><th>Sr.No</th><th>a<sub>i</sub></th><th>Result</th></tr>';
+    
+                for (var k = 0; k < N; k++) {
+                    img = 0;
+                    real = 0;
+                    var pi = 180;
+                    for (var n = 0; n < N; n++) {
+                        tmp = ((2 * pi * n * k) / N) / 57.2957795130823209;
+                        real += Math.cos(tmp) * arr[n];
+                        img -= Math.sin(tmp) * arr[n];
+                    }
+                    t_real[k] = real;
+                    t_img[k] = easyRoundOf(img, 4);
+                    var sign = '+';
+                    if (t_img[k] < 0) {
+                        sign = '-';
+                        t_img[k] = t_img[k] * (-1);
+                    }
+    
+                   // str += Math.round(arr[k] * 1000) / 1000 + '\t' + Math.round(t_real[k] * 1000) / 1000 + sign + Math.round(t_img[k] * 1000) / 1000 + 'j\n';
+                    tablcont+='<tr><td>'+(k+1)+'</td><td >'+Math.round(arr[k] * 1000) / 1000+'</td><td>'+Math.round(t_real[k] * 1000) / 1000 + sign + Math.round(t_img[k] * 1000) / 1000+'j</td></tr>'; 
+                }
+            } 
+            $('#tablecontent').html(tablcont);
+        }
+        function rst(){
+            $('#tablecontent').html('');
+    
+        }
+        // function fact(num) {
+        //     var rval = 1;
+        //     for (var i = 2; i <= num; i++)
+        //         rval = rval * i;
+        //         return rval;
+        //     }
+              
+    </script>		
+    <script type="text/javascript">
+            function alert(val)
+            {
+                $("#dynErrDisp").show();
+                $("#dynErrDisp").html(val);
+            }
+                $(document).ready(function() {
+                closeModal();
+            });
+    </script>
+    <script type="text/javascript">
+        var mobiScrnWidth = $(window).width();
+        function showhidetopcate(obj) {if (mobiScrnWidth < 480){var currightid = obj.id;if(currightid == "topcaterightbox") {$("#popcalcrightbox ul").hide();}else if(currightid == "popcalcrightbox") {$("#topcaterightbox ul").hide();}$("#"+currightid+" ul").show();}}
+        $(document).ready(function(){if (mobiScrnWidth < 480){$("#popcalcrightbox ul").hide();$("#topcaterightbox ul").hide();}});
+    </script>                            
+</body>               
+</html>
